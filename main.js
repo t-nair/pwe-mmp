@@ -1,4 +1,4 @@
-// main.js — Scrollytelling drone site
+// main.js — Scrollytelling site
 // Vanilla JS + GSAP, no framework
 
 // ─── Use case card data ──────────────────────────────────────
@@ -83,24 +83,121 @@ const DRONE_COMPONENTS = [
   }
 ];
 
+// ─── Continent outlines (simplified, [lon, lat] pairs) ──────
+const CONTINENT_DATA = [
+  // North America
+  [[-168,71],[-140,60],[-130,54],[-124,48],[-117,32],[-110,23],
+   [-85,10],[-77,8],[-82,27],[-80,25],[-80,32],[-75,35],[-76,38],
+   [-70,43],[-66,44],[-60,47],[-53,47],[-56,52],[-64,63],
+   [-80,62],[-95,60],[-120,60],[-138,60],[-160,60],[-168,71]],
+  // South America
+  [[-75,12],[-60,12],[-50,0],[-35,-5],[-35,-10],[-40,-20],
+   [-48,-28],[-53,-33],[-65,-55],[-70,-50],[-72,-42],
+   [-70,-30],[-72,-18],[-75,0],[-75,12]],
+  // Europe
+  [[-10,36],[0,43],[5,44],[8,46],[10,54],[12,56],[18,60],
+   [25,65],[28,71],[18,70],[8,62],[5,58],[-3,54],[-5,43],
+   [-9,39],[-10,36]],
+  // Africa (full coastline including sub-Saharan cone)
+  [[-5,35],[-13,33],[-17,21],[-18,16],[-17,10],[-15,5],
+   [-8,5],[0,5],[10,5],[9,2],[10,-5],[12,-18],
+   [16,-29],[18,-28],[27,-34],[33,-35],
+   [36,-25],[40,-10],[40,10],[45,12],[42,20],[37,22],
+   [32,30],[32,37],[25,37],[10,37],[5,36],[-5,35]],
+  // Asia (mainland — without India, which is separate)
+  [[30,70],[60,75],[100,72],[140,68],[170,63],[180,58],
+   [170,50],[145,45],[130,35],[120,30],[110,18],[100,5],
+   [105,-2],[115,-7],[120,12],[116,22],[110,22],[95,25],
+   [90,28],[88,26],[97,28],[93,22],[83,12],[78,8],
+   [72,18],[68,23],[60,25],[50,25],[43,15],[40,12],
+   [37,22],[32,37],[36,42],[42,42],[60,55],[80,60],[100,72]],
+  // India peninsula
+  [[68,23],[72,22],[77,28],[84,28],[88,26],[97,28],
+   [93,22],[83,12],[78,8],[72,18],[68,23]],
+  // Japan — Honshu (main island)
+  [[131,34],[132,35],[134,36],[136,37],[138,39],[140,40],
+   [141,41],[142,40],[141,38],[140,36],[138,35],[136,34],
+   [134,34],[131,34]],
+  // Japan — Hokkaido
+  [[141,42],[143,44],[145,43],[144,42],[141,42]],
+  // Japan — Kyushu
+  [[129,32],[131,34],[132,33],[130,31],[129,32]],
+  // Australia
+  [[115,-22],[120,-18],[128,-14],[135,-12],[140,-17],
+   [148,-20],[152,-25],[154,-28],[150,-36],[144,-38],
+   [135,-36],[129,-33],[117,-35],[115,-28],[115,-22]],
+  // Greenland
+  [[-45,60],[-20,60],[-15,70],[-25,75],[-45,83],
+   [-65,83],[-70,75],[-55,65],[-45,60]],
+];
+
+// ─── Globe data (slide 7, index 6) ──────────────────────────
+const GLOBE_PLATES = [
+  {
+    lat: 36, lon: 138,
+    region: 'Japan', food: 'Bento',
+    emoji: '🍱', color: '#c2614f',
+    thesis: '[Placeholder]'
+  },
+  {
+    lat: 20, lon: 78,
+    region: 'India', food: 'Thali',
+    emoji: '🫓', color: '#c27a2e',
+    thesis: '[Placeholder]'
+  },
+  {
+    lat: 23, lon: -100,
+    region: 'Mexico', food: 'Mole & Tortilla',
+    emoji: '🌮', color: '#5a9e62',
+    thesis: '[Placeholder]'
+  },
+  {
+    lat: 9, lon: 40,
+    region: 'Ethiopia', food: 'Injera & Wat',
+    emoji: '🫓', color: '#8b5e3c',
+    thesis: '[Placeholder]'
+  },
+  {
+    lat: 42, lon: 13,
+    region: 'Italy', food: 'Pasta al Ragù',
+    emoji: '🍝', color: '#b84a4a',
+    thesis: '[Placeholder]'
+  }
+];
+
+// Target rotation per step (brings that region's longitude to the front)
+// rot → (lon + rot) ≈ 0 so that point faces the viewer
+const GLOBE_TARGET_ROTATIONS = [20, -130, -72, 105, -35, -10];
+// Index 0 = idle (mid-Atlantic); 1–5 = each plate
+
 // ─── State ───────────────────────────────────────────────────
-let currentSlide = 0;
-let isAnimating = false;
-const SLIDE_DURATION = 0.65;
+let currentSlide  = 0;
+let isAnimating   = false;
+const SLIDE_DURATION  = 0.65;
 const SCROLL_COOLDOWN = 850; // ms
-let scrollLocked = false;
+let scrollLocked  = false;
+
+// Globe state
+let globeRotation  = GLOBE_TARGET_ROTATIONS[0];
+let globeTargetRot = GLOBE_TARGET_ROTATIONS[0];
+let globeStep      = 0;
+const GLOBE_STEPS  = GLOBE_PLATES.length; // 5
+let globeRAF       = null;
+let globeCanvas    = null;
+let globeCtx       = null;
+let globeSize      = 400;
 
 // ─── DOM ready ───────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
   const slides = Array.from(document.querySelectorAll('.slide'));
-  const dots = [];
+  const dots   = [];
 
   // Initial slide visibility
   slides.forEach((slide, i) => {
     gsap.set(slide, { display: i === 0 ? 'flex' : 'none', yPercent: 0, opacity: 1 });
   });
 
-  // ── Progress dots ────────────────────────────────────────
+  // ── Progress dots ─────────────────────────────────────────
   const dotsNav = document.getElementById('progress-dots');
   slides.forEach((_, i) => {
     const btn = document.createElement('button');
@@ -113,29 +210,35 @@ window.addEventListener('DOMContentLoaded', () => {
 
   function syncDots(idx) {
     dots.forEach((d, i) => d.classList.toggle('active', i === idx));
-    // Use dark dots on light-background slides
-    const lightSlides = [2, 3, 4, 6]; // 0-indexed
+    // Dark dots on cream/blush slides (0-indexed):
+    // 2 = slide-3 (cream), 4 = slide-4 (blush-sand), 6 = slide-5 (cream), 7 = slide-7 (blush-sand)
+    const lightSlides = [2, 4, 6, 7];
     dotsNav.classList.toggle('on-light', lightSlides.includes(idx));
   }
 
-  // ── Slide transition ─────────────────────────────────────
+  // ── Slide transition ──────────────────────────────────────
   function goTo(idx) {
     if (isAnimating || idx === currentSlide || idx < 0 || idx >= slides.length) return;
     isAnimating = true;
-    const dir = idx > currentSlide ? 1 : -1;
-    const leaving = slides[currentSlide];
+    const dir      = idx > currentSlide ? 1 : -1;
+    const leaving  = slides[currentSlide];
     const entering = slides[idx];
+    const prevIdx  = currentSlide;
 
     gsap.set(entering, { display: 'flex', yPercent: dir * 100, opacity: 1 });
 
     const tl = gsap.timeline({
       onComplete: () => {
         gsap.set(leaving, { display: 'none' });
-        isAnimating = false;
-        currentSlide = idx;
+        isAnimating   = false;
+        currentSlide  = idx;
         syncDots(idx);
         animateContent(idx);
-        if (idx === 3) animatePipeline(); // Slide 4
+        if (idx === 4) animatePipeline(); // Slide 5 (0-indexed 4)
+
+        // Globe slide is index 6
+        if (prevIdx === 5) stopGlobeLoop();
+        if (idx === 5)     { initGlobe(); startGlobeLoop(); }
       }
     });
 
@@ -143,12 +246,16 @@ window.addEventListener('DOMContentLoaded', () => {
       .to(entering, { yPercent: 0,          opacity: 1, duration: SLIDE_DURATION, ease: 'power2.inOut' }, 0);
   }
 
+  // Expose goTo so globe scroll handler (defined later) can call it
+  window._goTo = goTo;
+
   function animateContent(idx) {
     const slide = slides[idx];
     const els = slide.querySelectorAll(
       'h1, h2, .pull-quote, .attribution, .subtext, .big-thesis, ' +
       '.use-case-card, .cta-list li, .echobird-note, .stat, ' +
-      '.apl-stat, .diagram-hint, .pipeline-caption, .echobird-author, .slide-subtitle, .scroll-hint'
+      '.apl-stat, .diagram-hint, .pipeline-caption, .echobird-author, ' +
+      '.slide-subtitle, .scroll-hint, .globe-hint'
     );
     if (!els.length) return;
     gsap.fromTo(els,
@@ -159,21 +266,44 @@ window.addEventListener('DOMContentLoaded', () => {
 
   animateContent(0);
 
-  // ── Input handlers ───────────────────────────────────────
-  // Scroll wheel (debounced)
+  // ── Input handlers ────────────────────────────────────────
+  // Wheel
   window.addEventListener('wheel', (e) => {
     e.preventDefault();
     if (scrollLocked) return;
     scrollLocked = true;
     setTimeout(() => { scrollLocked = false; }, SCROLL_COOLDOWN);
+
+    const dir = e.deltaY > 0 ? 1 : -1;
+
+    // Globe slide (index 5) intercepts scroll to spin the globe
+    if (currentSlide === 5) {
+      const next = globeStep + dir;
+      if (next >= 0 && next <= GLOBE_STEPS) {
+        advanceGlobe(next);
+        return;
+      }
+      // Exhausted globe steps — fall through to navigate
+    }
+
     if (e.deltaY > 0) goTo(currentSlide + 1);
     else              goTo(currentSlide - 1);
   }, { passive: false });
 
-  // Arrow & directional keys
+  // Arrow keys
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') goTo(currentSlide + 1);
-    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   goTo(currentSlide - 1);
+    const fwd = e.key === 'ArrowRight' || e.key === 'ArrowDown';
+    const bwd = e.key === 'ArrowLeft'  || e.key === 'ArrowUp';
+    if (!fwd && !bwd) return;
+    const dir = fwd ? 1 : -1;
+
+    if (currentSlide === 5) {
+      const next = globeStep + dir;
+      if (next >= 0 && next <= GLOBE_STEPS) { advanceGlobe(next); return; }
+    }
+
+    if (fwd) goTo(currentSlide + 1);
+    if (bwd) goTo(currentSlide - 1);
   });
 
   // Touch swipe
@@ -183,26 +313,19 @@ window.addEventListener('DOMContentLoaded', () => {
   }, { passive: true });
   window.addEventListener('touchend', (e) => {
     const diff = touchStartY - e.changedTouches[0].clientY;
-    if (Math.abs(diff) > 45) {
-      if (diff > 0) goTo(currentSlide + 1);
-      else          goTo(currentSlide - 1);
+    if (Math.abs(diff) < 45) return;
+    const dir = diff > 0 ? 1 : -1;
+
+    if (currentSlide === 5) {
+      const next = globeStep + dir;
+      if (next >= 0 && next <= GLOBE_STEPS) { advanceGlobe(next); return; }
     }
+
+    if (diff > 0) goTo(currentSlide + 1);
+    else          goTo(currentSlide - 1);
   }, { passive: true });
 
-  // ── Audio toggle ─────────────────────────────────────────
-  const audio = document.getElementById('drone-audio');
-  const audioBtn = document.getElementById('audio-toggle');
-  let audioOn = false;
-  audioBtn.textContent = '♪';
-  audioBtn.addEventListener('click', () => {
-    audioOn = !audioOn;
-    audioBtn.classList.toggle('active', audioOn);
-    audio.muted = !audioOn;
-    if (audioOn) audio.play().catch(() => {});
-    else         audio.pause();
-  });
-
-  // ── Build interactive elements ───────────────────────────
+  // ── Build interactive elements ────────────────────────────
   buildUseCaseCards();
   buildDroneDiagram();
   buildPipelineFlow();
@@ -225,12 +348,12 @@ function buildDroneDiagram() {
   const container = document.getElementById('drone-diagram');
   if (!container) return;
 
-  const NS = 'http://www.w3.org/2000/svg';
+  const NS  = 'http://www.w3.org/2000/svg';
   const svg = document.createElementNS(NS, 'svg');
   svg.setAttribute('viewBox', '0 0 400 310');
   svg.setAttribute('role', 'img');
   svg.setAttribute('aria-label', 'Top-down diagram of a quadcopter drone with labeled components');
-  svg.style.width = '100%';
+  svg.style.width  = '100%';
   svg.style.height = '100%';
 
   const mk = (tag, attrs) => {
@@ -240,8 +363,7 @@ function buildDroneDiagram() {
   };
 
   // Arms
-  const armPositions = [[200,155,108,80],[200,155,292,80],[200,155,108,228],[200,155,292,228]];
-  armPositions.forEach(([x1,y1,x2,y2]) => {
+  [[200,155,108,80],[200,155,292,80],[200,155,108,228],[200,155,292,228]].forEach(([x1,y1,x2,y2]) => {
     svg.appendChild(mk('line', { x1, y1, x2, y2, stroke: '#1B4F52', 'stroke-width': 6, 'stroke-linecap': 'round' }));
   });
 
@@ -255,22 +377,17 @@ function buildDroneDiagram() {
     svg.appendChild(mk('line',   { x1: cx, y1: cy-22, x2: cx, y2: cy+22, stroke: '#5BA8A0', 'stroke-width': 4.5, 'stroke-linecap': 'round' }));
   });
 
-  // Tooltip reference
-  const tooltip = document.getElementById('drone-tooltip');
-  const ttLabel = tooltip.querySelector('.tt-label');
-  const ttMil   = tooltip.querySelector('.tt-military');
-  const ttCiv   = tooltip.querySelector('.tt-civilian');
+  const tooltip  = document.getElementById('drone-tooltip');
+  const ttLabel  = tooltip.querySelector('.tt-label');
+  const ttMil    = tooltip.querySelector('.tt-military');
+  const ttCiv    = tooltip.querySelector('.tt-civilian');
 
-  // Component dots + labels
   DRONE_COMPONENTS.forEach(({ id, cx, cy, label, military, civilian, lx, ly, anchor }) => {
-    // Leader line from label to dot
-    const line = mk('line', {
+    svg.appendChild(mk('line', {
       x1: lx, y1: ly - 4, x2: cx, y2: cy,
       stroke: '#D4705A', 'stroke-width': 1, 'stroke-dasharray': '3 3', opacity: 0.6
-    });
-    svg.appendChild(line);
+    }));
 
-    // Label text
     const text = mk('text', {
       x: lx, y: ly,
       'text-anchor': anchor,
@@ -280,12 +397,7 @@ function buildDroneDiagram() {
     text.textContent = label;
     svg.appendChild(text);
 
-    // Dot
-    const dot = mk('circle', {
-      id, cx, cy, r: 6,
-      fill: '#D4705A', class: 'component-dot'
-    });
-
+    const dot = mk('circle', { id, cx, cy, r: 6, fill: '#D4705A', class: 'component-dot' });
     dot.addEventListener('mouseenter', (e) => {
       ttLabel.textContent = label;
       ttMil.textContent   = military;
@@ -293,9 +405,8 @@ function buildDroneDiagram() {
       tooltip.classList.add('visible');
       positionTooltip(e.clientX, e.clientY);
     });
-    dot.addEventListener('mousemove', (e) => positionTooltip(e.clientX, e.clientY));
-    dot.addEventListener('mouseleave', () => tooltip.classList.remove('visible'));
-
+    dot.addEventListener('mousemove',  (e) => positionTooltip(e.clientX, e.clientY));
+    dot.addEventListener('mouseleave', ()  => tooltip.classList.remove('visible'));
     svg.appendChild(dot);
   });
 
@@ -307,8 +418,7 @@ function positionTooltip(x, y) {
   const pad = 16;
   let left = x + pad;
   let top  = y - 10;
-  // Keep within viewport
-  const tw = tooltip.offsetWidth || 220;
+  const tw = tooltip.offsetWidth  || 220;
   const th = tooltip.offsetHeight || 90;
   if (left + tw > window.innerWidth  - 8) left = x - tw - pad;
   if (top  + th > window.innerHeight - 8) top  = y - th - pad;
@@ -321,8 +431,8 @@ function buildPipelineFlow() {
   const container = document.getElementById('pipeline-flow');
   if (!container) return;
 
-  const NS = 'http://www.w3.org/2000/svg';
-  const mk = (tag, attrs) => {
+  const NS  = 'http://www.w3.org/2000/svg';
+  const mk  = (tag, attrs) => {
     const el = document.createElementNS(NS, tag);
     Object.entries(attrs).forEach(([k,v]) => el.setAttribute(k, v));
     return el;
@@ -333,50 +443,44 @@ function buildPipelineFlow() {
   svg.style.width  = '100%';
   svg.style.height = '100%';
 
-  // Arrowhead marker
-  const defs = document.createElementNS(NS, 'defs');
+  const defs   = document.createElementNS(NS, 'defs');
   const marker = document.createElementNS(NS, 'marker');
-  Object.assign(marker, {});
-  marker.setAttribute('id', 'pipe-arrow');
+  marker.setAttribute('id',           'pipe-arrow');
   marker.setAttribute('markerWidth',  '10');
   marker.setAttribute('markerHeight', '7');
-  marker.setAttribute('refX', '9');
-  marker.setAttribute('refY', '3.5');
-  marker.setAttribute('orient', 'auto');
-  const arrowPoly = mk('polygon', { points: '0 0, 10 3.5, 0 7', fill: '#D4705A' });
-  marker.appendChild(arrowPoly);
+  marker.setAttribute('refX',         '9');
+  marker.setAttribute('refY',         '3.5');
+  marker.setAttribute('orient',       'auto');
+  marker.appendChild(mk('polygon', { points: '0 0, 10 3.5, 0 7', fill: '#D4705A' }));
   defs.appendChild(marker);
   svg.appendChild(defs);
 
   const nodes = [
-    { label: 'Hopkins\nEE / MechE / CS', x: 100, fill: '#1B4F52' },
-    { label: 'JHU APL',                  x: 320, fill: '#8B2E2E' },
+    { label: 'Hopkins\nEE / MechE / CS', x: 100,  fill: '#1B4F52' },
+    { label: 'JHU APL',                  x: 320,  fill: '#8B2E2E' },
     { label: 'Lockheed · Raytheon\nNorthrop Grumman', x: 540, fill: '#1A1A18' },
   ];
 
-  // Arrows (will be animated)
   [[nodes[0].x + 70, nodes[1].x - 70], [nodes[1].x + 70, nodes[2].x - 70]].forEach(([x1, x2]) => {
-    const path = mk('path', {
+    svg.appendChild(mk('path', {
       d: `M ${x1} 70 C ${x1+30} 70, ${x2-30} 70, ${x2} 70`,
       stroke: '#D4705A', 'stroke-width': 2.5, fill: 'none',
       'marker-end': 'url(#pipe-arrow)',
       'stroke-dasharray': 180, 'stroke-dashoffset': 180,
       class: 'pipeline-arrow'
-    });
-    svg.appendChild(path);
+    }));
   });
 
-  // Node boxes
   nodes.forEach(({ label, x, fill }) => {
     svg.appendChild(mk('rect', { x: x-70, y: 40, width: 140, height: 60, rx: 8, fill }));
     label.split('\n').forEach((line, li) => {
       const text = document.createElementNS(NS, 'text');
-      text.setAttribute('x', x);
-      text.setAttribute('y', 66 + li * 18);
+      text.setAttribute('x',           x);
+      text.setAttribute('y',           66 + li * 18);
       text.setAttribute('text-anchor', 'middle');
-      text.setAttribute('font-size', '13');
+      text.setAttribute('font-size',   '13');
       text.setAttribute('font-family', 'Inter, sans-serif');
-      text.setAttribute('fill', '#FAF6F0');
+      text.setAttribute('fill',        '#FAF6F0');
       text.setAttribute('font-weight', '600');
       text.textContent = line;
       svg.appendChild(text);
@@ -388,11 +492,247 @@ function buildPipelineFlow() {
 
 function animatePipeline() {
   document.querySelectorAll('.pipeline-arrow').forEach((arrow, i) => {
-    gsap.to(arrow, {
-      strokeDashoffset: 0,
-      duration: 1.1,
-      delay: i * 0.55,
-      ease: 'power2.inOut'
-    });
+    gsap.to(arrow, { strokeDashoffset: 0, duration: 1.1, delay: i * 0.55, ease: 'power2.inOut' });
   });
 }
+
+// ─── Globe: init & canvas setup ──────────────────────────────
+function initGlobe() {
+  globeCanvas = document.getElementById('globe-canvas');
+  if (!globeCanvas) return;
+
+  const DPR  = window.devicePixelRatio || 1;
+  const stage = globeCanvas.parentElement;
+  globeSize   = Math.min(stage.offsetWidth, stage.offsetHeight, 400);
+
+  globeCanvas.width        = globeSize * DPR;
+  globeCanvas.height       = globeSize * DPR;
+  globeCanvas.style.width  = globeSize + 'px';
+  globeCanvas.style.height = globeSize + 'px';
+
+  globeCtx = globeCanvas.getContext('2d');
+  globeCtx.scale(DPR, DPR);
+
+  buildGlobePins();
+}
+
+function buildGlobePins() {
+  const container = document.getElementById('globe-pins');
+  if (!container) return;
+  container.innerHTML = '';
+
+  GLOBE_PLATES.forEach((plate, i) => {
+    const pin = document.createElement('div');
+    pin.className   = 'globe-pin';
+    pin.dataset.idx = i;
+    pin.innerHTML   = `
+      <div class="globe-pin-plate">
+        <div class="globe-pin-img-ph" style="background:${plate.color}">${plate.emoji}</div>
+        <div class="globe-pin-line"></div>
+        <span class="globe-pin-label">${plate.region}</span>
+      </div>
+      <div class="globe-pin-dot"></div>
+    `;
+    container.appendChild(pin);
+  });
+}
+
+// ─── Globe: draw ─────────────────────────────────────────────
+function drawGlobeFrame(rot) {
+  if (!globeCtx) return;
+  const S   = globeSize;
+  const cx  = S / 2, cy = S / 2;
+  const R   = S * 0.455;
+  const ctx = globeCtx;
+
+  ctx.clearRect(0, 0, S, S);
+
+  // Ocean sphere gradient
+  const oceanGrad = ctx.createRadialGradient(cx - R*0.3, cy - R*0.35, 0, cx, cy, R);
+  oceanGrad.addColorStop(0,   '#7abfb8');
+  oceanGrad.addColorStop(0.4, '#3a8880');
+  oceanGrad.addColorStop(0.8, '#1B4F52');
+  oceanGrad.addColorStop(1,   '#0b2628');
+  ctx.beginPath();
+  ctx.arc(cx, cy, R, 0, Math.PI*2);
+  ctx.fillStyle = oceanGrad;
+  ctx.fill();
+
+  // Continent land masses
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, R, 0, Math.PI * 2);
+  ctx.clip(); // keep everything inside the sphere
+
+  for (const polygon of CONTINENT_DATA) {
+    // Project each vertex; collect contiguous front-face runs
+    const projected = polygon.map(([lon, lat]) => {
+      const phi    = lat * Math.PI / 180;
+      const lambda = ((lon + rot) % 360) * Math.PI / 180;
+      const depth  = Math.cos(phi) * Math.cos(lambda);
+      const x      = cx + R * Math.cos(phi) * Math.sin(lambda);
+      const y      = cy - R * Math.sin(phi);
+      return { x, y, depth };
+    });
+
+    // Gather contiguous visible segments, then fill each as a closed shape
+    let seg = [];
+    const flush = () => {
+      if (seg.length < 2) { seg = []; return; }
+      ctx.beginPath();
+      ctx.moveTo(seg[0].x, seg[0].y);
+      for (let i = 1; i < seg.length; i++) ctx.lineTo(seg[i].x, seg[i].y);
+      ctx.closePath();
+      ctx.fillStyle   = 'rgba(52, 105, 62, 0.78)';
+      ctx.strokeStyle = 'rgba(80, 150, 90, 0.55)';
+      ctx.lineWidth   = 0.7;
+      ctx.fill();
+      ctx.stroke();
+      seg = [];
+    };
+
+    // Walk the polygon (wrap last→first to close the outline)
+    for (let i = 0; i <= projected.length; i++) {
+      const pt = projected[i % projected.length];
+      if (pt.depth > 0) {
+        seg.push(pt);
+      } else {
+        flush();
+      }
+    }
+    flush();
+  }
+  ctx.restore();
+
+  // Latitude grid lines (parallels — drawn as ellipses)
+  ctx.lineWidth = 0.6;
+  for (let lat = -75; lat <= 75; lat += 15) {
+    const phi = lat * Math.PI / 180;
+    const y   = cy - R * Math.sin(phi);
+    const rx  = R  * Math.cos(phi);
+    const ry  = rx * 0.28; // perspective squish
+    if (rx < 2) continue;
+    ctx.strokeStyle = 'rgba(255,255,255,0.11)';
+    ctx.beginPath();
+    ctx.ellipse(cx, y, rx, ry, 0, 0, Math.PI*2);
+    ctx.stroke();
+  }
+
+  // Longitude grid lines (meridians — drawn parametrically)
+  for (let lon = 0; lon < 360; lon += 20) {
+    const lambda = ((lon + rot) % 360) * Math.PI / 180;
+    const cosL   = Math.cos(lambda);
+    ctx.strokeStyle = cosL > 0 ? 'rgba(255,255,255,0.13)' : 'rgba(255,255,255,0.03)';
+    ctx.lineWidth   = 0.6;
+    ctx.beginPath();
+    let first = true;
+    for (let lat = -90; lat <= 90; lat += 4) {
+      const phi = lat * Math.PI / 180;
+      const x   = cx + R * Math.cos(phi) * Math.sin(lambda);
+      const y   = cy - R * Math.sin(phi);
+      if (first) { ctx.moveTo(x, y); first = false; }
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+
+  // Rim vignette
+  const rimGrad = ctx.createRadialGradient(cx, cy, R*0.65, cx, cy, R);
+  rimGrad.addColorStop(0, 'transparent');
+  rimGrad.addColorStop(1, 'rgba(0,0,0,0.45)');
+  ctx.beginPath();
+  ctx.arc(cx, cy, R, 0, Math.PI*2);
+  ctx.fillStyle = rimGrad;
+  ctx.fill();
+
+  // Specular highlight (top-left)
+  const specGrad = ctx.createRadialGradient(cx - R*0.33, cy - R*0.33, 0, cx - R*0.33, cy - R*0.33, R*0.55);
+  specGrad.addColorStop(0, 'rgba(255,255,255,0.14)');
+  specGrad.addColorStop(1, 'transparent');
+  ctx.beginPath();
+  ctx.arc(cx, cy, R, 0, Math.PI*2);
+  ctx.fillStyle = specGrad;
+  ctx.fill();
+}
+
+// ─── Globe: pin positions ─────────────────────────────────────
+function updateGlobePins(rot) {
+  const container = document.getElementById('globe-pins');
+  if (!container) return;
+  const S   = globeSize;
+  const cx  = S / 2, cy = S / 2;
+  const R   = S * 0.455;
+  const activeIdx = globeStep - 1;
+
+  container.querySelectorAll('.globe-pin').forEach((pin, i) => {
+    const { lat, lon } = GLOBE_PLATES[i];
+    const phi    = lat * Math.PI / 180;
+    const lambda = ((lon + rot) % 360) * Math.PI / 180;
+    const x      = cx + R * Math.cos(phi) * Math.sin(lambda);
+    const y      = cy - R * Math.sin(phi);
+    const depth  = Math.cos(phi) * Math.cos(lambda); // >0 = front hemisphere
+
+    pin.style.left = (x / S * 100) + '%';
+    pin.style.top  = (y / S * 100) + '%';
+    pin.classList.toggle('back-face', depth < 0.08);
+    pin.classList.toggle('active',    i === activeIdx);
+  });
+}
+
+// ─── Globe: RAF loop ─────────────────────────────────────────
+function startGlobeLoop() {
+  if (globeRAF) return;
+  function tick() {
+    // Idle: slow eastward drift
+    if (globeStep === 0) globeTargetRot += 0.07;
+    // Lerp rotation toward target
+    globeRotation += (globeTargetRot - globeRotation) * 0.07;
+    drawGlobeFrame(globeRotation);
+    updateGlobePins(globeRotation);
+    globeRAF = requestAnimationFrame(tick);
+  }
+  globeRAF = requestAnimationFrame(tick);
+}
+
+function stopGlobeLoop() {
+  if (globeRAF) { cancelAnimationFrame(globeRAF); globeRAF = null; }
+}
+
+// ─── Globe: advance step ─────────────────────────────────────
+function advanceGlobe(step) {
+  globeStep      = step;
+  globeTargetRot = GLOBE_TARGET_ROTATIONS[step];
+
+  const info = document.getElementById('globe-info');
+  if (!info) return;
+
+  if (step === 0) {
+    info.classList.remove('visible');
+  } else {
+    const plate = GLOBE_PLATES[step - 1];
+    info.querySelector('.globe-info-region').textContent = plate.region;
+    info.querySelector('.globe-info-food').textContent   = plate.food;
+    info.querySelector('.globe-info-thesis').textContent = plate.thesis;
+    info.classList.add('visible');
+  }
+}
+
+// ─── Health windows: click to pin popup ─────────────────────
+document.querySelectorAll('.health-window').forEach(card => {
+  card.addEventListener('click', e => {
+    // Don't toggle if user clicked a link inside the popup
+    if (e.target.closest('a')) return;
+
+    const isOpen = card.classList.contains('pinned');
+    // Close any other pinned cards
+    document.querySelectorAll('.health-window.pinned').forEach(c => c.classList.remove('pinned'));
+    if (!isOpen) card.classList.add('pinned');
+  });
+});
+
+// Click outside any health-window closes pinned popup
+document.addEventListener('click', e => {
+  if (!e.target.closest('.health-window')) {
+    document.querySelectorAll('.health-window.pinned').forEach(c => c.classList.remove('pinned'));
+  }
+});

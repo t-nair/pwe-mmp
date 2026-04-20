@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Destruction or Flourishing? — Tanya Nair</title>
+  <title>Efficiency over Experience — Tanya Nair</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,700;1,300;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
@@ -53,6 +53,7 @@
           <br> <br>
           In the era of short-form content and short attention spans, it's no surprise that the next step after cold coffee is the drinkable meal replacement. We're trying to shorten everything, even our meals.
         </div>
+        <!-- https://www.freepik.com/free-psd/refreshing-iced-coffee-with-ice-cubes_426433360.htm Image by muhammad.abdullah on Freepik -->
       </div>
     </section>
 
@@ -61,60 +62,263 @@
       <div class="slide-content centered wide">
         <h2>This has given rise to many ventures centered around <em>efficient</em> nutrition:</h2>
         <p class="diagram-hint">Hover over a founder to see their venture and background. A lot of these founders don't have knowledge/experience in nutrition.</p>
+        <div class="founders-grid">
+
+          <div class="founder-card">
+            <img src="assets/images/julian-hearn.png" alt="Julian Hearn" class="founder-photo">
+            <p class="founder-name">Julian Hearn</p>
+            <div class="founder-popup">
+              <p class="popup-venture">Huel</p>
+              <p class="popup-background">Marketing &amp; entrepreneurship, no formal nutrition training.</p>
+            </div>
+          </div>
+
+          <div class="founder-card">
+            <img src="assets/images/john-coogan.png" alt="John Coogan" class="founder-photo">
+            <p class="founder-name">John Coogan</p>
+            <div class="founder-popup">
+              <p class="popup-venture">Soylent</p>
+              <p class="popup-background">Software engineer, no nutrition background. Framed food as an engineering problem to be optimized away.</p>
+            </div>
+          </div>
+
+          <div class="founder-card">
+            <img src="assets/images/chris-ashenden.png" alt="Chris Ashenden" class="founder-photo">
+            <p class="founder-name">Chris Ashenden</p>
+            <div class="founder-popup">
+              <p class="popup-venture">AG1</p>
+              <p class="popup-background">Real estate entrepreneur. Convicted in 2011 for 43 violations of New Zealand's Fair Trading Act before founding AG1. No nutrition or health science credentials.</p>
+            </div>
+          </div>
+
+          <div class="founder-card">
+            <img src="assets/images/peter-rahal.png" alt="Peter Rahal" class="founder-photo">
+            <p class="founder-name">Peter Rahal</p>
+            <div class="founder-popup">
+              <p class="popup-venture">David</p>
+              <p class="popup-background">Food entrepreneur (co-founded RXBAR). Backed by Andrew Huberman and Peter Attia. Faced a class action in 2026 alleging 400% more fat and 80% more calories than labeled — lawsuit later dropped.</p>
+            </div>
+          </div>
+
+          <div class="founder-card">
+            <img src="assets/images/dave-asprey.jpg" alt="Dave Asprey" class="founder-photo">
+            <p class="founder-name">Dave Asprey</p>
+            <div class="founder-popup">
+              <p class="popup-venture">Bulletproof Coffee</p>
+              <p class="popup-background">IT executive, no medical or nutrition degree. Claims Bulletproof Coffee raised his IQ by 20+ points — no evidence provided. British Dietetic Association listed his diet as a fad diet. Accused of false health claims about COVID-19 supplements.</p>
+            </div>
+          </div>
+
+        </div>
       </div>
     </section>
 
-    <!-- Slide 4: The Pipeline -->
+    <!-- Slide 4: Health Effects -->
+    <section class="slide slide-health" aria-label="Health effects">
+      <div class="slide-bg slide-health-bg"></div>
+      <div class="slide-content centered wide">
+        <h2>But these products come at a cost.</h2>
+        <p class="diagram-hint">Hover over each panel to reveal the research.</p>
+        <div class="health-windows">
+
+          <div class="health-window">
+            <div class="hw-icon">🦠</div>
+            <div class="hw-title">Gut Microbiome</div>
+            <div class="hw-popup">
+              <p class="hw-popup-title">Disrupted Gut Flora</p>
+              <p class="hw-popup-body">"In concert, these results demonstrate that the gut microbiome can rapidly respond to altered diet, potentially facilitating the diversity of human dietary lifestyles."</p>
+              <p class="hw-popup-citation"><a href="https://doi.org/10.1038/nature12820" target="_blank" rel="noopener noreferrer">[Citation]</a></p>
+            </div>
+          </div>
+
+          <div class="health-window">
+            <div class="hw-icon">🧠</div>
+            <div class="hw-title">Food Psychology</div>
+            <div class="hw-popup">
+              <p class="hw-popup-title">Disordered Eating Patterns</p>
+              <p class="hw-popup-body"> "Almost all studies reported a relationship between loneliness/social isolation and eating behaviours usually considered harmful such as low fruit and vegetable intake and lower diet quality."</p>
+              <p class="hw-popup-citation"><a href="https://doi.org/10.1016/j.appet.2023.107051" target="_blank" rel="noopener noreferrer">[Citation]</a></p>
+            </div>
+          </div>
+
+          <div class="health-window">
+            <div class="hw-icon">🌿</div>
+            <div class="hw-title">Missing Nutrients</div>
+            <div class="hw-popup">
+              <p class="hw-popup-title">The FDA's Role</p>
+              <p class="hw-popup-body">"Because the FDA doesn’t routinely test meal replacement products for quality before sale ... it’s imperative to thoroughly review ingredient and nutrition labels."</p>
+              <p class="hw-popup-citation"><a href="https://www.todaysdietitian.com/meal-replacement-solutions/" target="_blank" rel="noopener noreferrer">[Citation]</a></p>
+            </div>
+          </div>
+
+          <div class="health-window">
+            <div class="hw-icon">⚗️</div>
+            <div class="hw-title">Artificial Sweeteners</div>
+            <div class="hw-popup">
+              <p class="hw-popup-title">Potential Negative Effects</p>
+              <p class="hw-popup-body">"Total artificial sweetener intake was associated with increased risk of cardiovascular diseases (1502 events, hazard ratio 1.09, 95% confidence interval 1.01 to 1.18, P=0.03)"</p>
+              <p class="hw-popup-citation"><a href="https://doi.org/10.1136/bmj-2022-071204" target="_blank" rel="noopener noreferrer">[Citation]</a></p>
+            </div>
+          </div>
+
+          <div class="health-window">
+            <div class="hw-icon">👥</div>
+            <div class="hw-title">Social Isolation</div>
+            <div class="hw-popup">
+              <p class="hw-popup-title">The Loneliness of the Solo Shake</p>
+              <p class="hw-popup-body">"27 out of 29 studies found at least one association between loneliness or social isolation and one or more food/eating behaviors that would usually be considered harmful."</p>
+              <p class="hw-popup-citation"><a href="https://www.nationalgeographic.com/health/article/communal-dining-loneliness-epidemic" target="_blank" rel="noopener noreferrer">[Citation]</a></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 5: The Pipeline -->
     <section class="slide slide-4" aria-label="The pipeline">
       <div class="slide-content centered">
-        <h2> Why do we trust them?</h2>
+        <h2> So, why do we trust them?</h2>
         <p class="pipeline-caption">
           Founders (looking for the next "big thing") → Health Podcasts (Huberman, etc.) → Health-focused Consumers
         </p>
         <div class="stat">
           And it's no surprise that they're targeting this demographic. The global wellness industry is worth $4.5 trillion, and the meal replacement market is expected to grow at a CAGR of 7.8% from 2023 to 2030.
         </div>
-        <blockquote class="pull-quote pull-quote-sm">
-          "quote from scientist."
-          <span class="attribution">— name</span>
-        </blockquote>
-        <p class="subtext">Something emtional</p>
+        <p class="subtext">It seems like we can trust anyone with our nutrition. At least, according to current legislation.</p>
+
+        <div class="leg-btns">
+
+          <div class="leg-btn-wrap">
+            <button class="leg-btn">§ FDA Gap</button>
+            <div class="leg-popup">
+              <p class="leg-popup-title">The FDA Doesn't Approve Supplements</p>
+              <p class="leg-popup-body">placeholder text</p>
+            </div>
+          </div>
+
+          <div class="leg-btn-wrap">
+            <button class="leg-btn">§ DSHEA 1994</button>
+            <div class="leg-popup">
+              <p class="leg-popup-title">The Law That Created the Loophole</p>
+              <p class="leg-popup-body">placeholder text</p>
+            </div>
+          </div>
+
+          <div class="leg-btn-wrap">
+            <button class="leg-btn">§ FTC Actions</button>
+            <div class="leg-popup">
+              <p class="leg-popup-title">FTC vs. Bogus Health Claims</p>
+              <p class="leg-popup-body">placeholder text</p>
+            </div>
+          </div>
+
+          <div class="leg-btn-wrap">
+            <button class="leg-btn">§ David Bar Suit</button>
+            <div class="leg-popup">
+              <p class="leg-popup-title">Class Action, 2026</p>
+              <p class="leg-popup-body">placeholder text</p>
+            </div>
+          </div>
+
+        </div>
       </div>
     </section>
 
-    <!-- Slide 5: What Else -->
+<!-- Slide 7: Culture & Meals Globe -->
+    <section class="slide slide-6" aria-label="Meals and culture">
+      <div class="globe-scene">
+        <h2 class="globe-title">A meal can be more significant than just food.</h2>
+        <div class="globe-stage">
+          <canvas id="globe-canvas"></canvas>
+          <div id="globe-pins"></div>
+        </div>
+        <div id="globe-info" class="globe-info" aria-live="polite">
+          <div class="globe-info-region"></div>
+          <div class="globe-info-food"></div>
+          <p class="globe-info-thesis"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide: On the Go -->
+    <section class="slide slide-on-the-go" aria-label="On the go">
+      <div class="slide-content centered wide">
+        <h2>But, convenience has real value.</h2>
+        <p class="apl-stat">
+          For people with demanding schedules, limited access to kitchens, or medical conditions that make eating difficult, liquid meal replacements can be a game-changer.</p>
+        <p class="apl-stat">
+          The main problem arises when a useful tool for busy days starts to quietly replace the cultural and social benefits of real meals, when eating becomes another problem for us to find an optimal solution to. <br><br>The health risks aren't a reason to ban these products, but instead a reason to be honest about their abilities and what they can and cannot replace.
+        </p>
+      </div>
+    </section>
+
+    <!-- Slide 6: What Else -->
     <section class="slide slide-5" aria-label="CTA">
       <div class="slide-content centered wide">
         <h2>Here's what we can do.</h2>
       </div>
     </section>
 
-    <!-- Slide 6: The Choice -->
-    <section class="slide slide-6" aria-label="The choice">
-      <div class="slide-content centered">
-        <p class="big-thesis">Something nice about meals and culture</p>
-        <p class="subtext">Choice is important too though - sometimes food can be overstimulating, it's just important to have regulations on these things so we know what we're putting in our body.</p>
+    
+
+    <!-- Slide: Legislation -->
+    <section class="slide slide-legislation" aria-label="Legislation">
+      <div class="slide-content centered wide">
+        <h2>Advocate for better regulation.</h2>
+        <p class="apl-stat">
+          The DSHEA in 1994 was written before the wellness industry exploded into a $4.5 trillion market. This codified the FDA's hands-off approach to dietary supplements but can't keep up with our reality today.</p>
+        <div class="leg-btns">
+
+          <div class="leg-btn-wrap">
+            <button class="leg-btn">Pre-Market Review</button>
+            <div class="leg-popup">
+              <p class="leg-popup-title">Evidence of Benefits Before Sale</p>
+              <p class="leg-popup-body">placeholder text</p>
+            </div>
+          </div>
+
+          <div class="leg-btn-wrap">
+            <button class="leg-btn">Transparent Labeling</button>
+            <div class="leg-popup">
+              <p class="leg-popup-title">Accurate Nutrition Labels</p>
+              <p class="leg-popup-body">placeholder text</p>
+            </div>
+          </div>
+
+          <div class="leg-btn-wrap">
+            <button class="leg-btn">Influencer Accountability</button>
+            <div class="leg-popup">
+              <p class="leg-popup-title">Stricter Endorsement Rules for Influencers</p>
+              <p class="leg-popup-body">placeholder text</p>
+            </div>
+          </div>
+
+        </div>
       </div>
     </section>
 
-    <!-- Slide 7: CTA -->
+    <!-- Slide 8: CTA -->
     <section class="slide slide-7" aria-label="Call to action">
       <div class="slide-content centered">
-        <h2>Some brands that are backed by research possibly</h2>
+        <h2>Additionally, support transparent, research-backed brands like:</h2>
         <ol class="cta-list">
           <li>List</li>
         </ol>
-        <footer class="site-footer">
-          Tanya Nair · Professional Writing &amp; Ethics · Spring 2026<br>
-          </footer>
       </div>
     </section>
 
-  </div>
+    <!-- Slide 9: Closing -->
+    <section class="slide slide-closing" aria-label="Closing">
+      <div class="slide-content centered">
+        <h2 class="closing-statement">Meal replacements have everything your body needs, except the meal.</h2>
+        <p class="closing-sub">Not everything needs to be optimized.</p>
+      </div>
+        <footer class="site-footer">
+          Tanya Nair · Professional Writing &amp; Ethics · Spring 2026<br>
+          </footer>
+    </section>
 
-  <!-- Audio (optional ambient hum) -->
-  <audio id="drone-audio" src="assets/audio/drone-hum.mp3" loop></audio>
-  <button id="audio-toggle" aria-label="Toggle ambient audio" title="Toggle ambient audio"></button>
+  </div>
 
 </body>
 </html>
