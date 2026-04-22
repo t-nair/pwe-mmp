@@ -3,13 +3,13 @@
 
 /* ─── Design tokens ─────────────────────────────────────── */
 :root {
-  --cream:        #DFE2CF;
-  --deep-teal:    #4A5043;
-  --seafoam:      #9BA694;
-  --terracotta:   #E2856E;
-  --blush-sand:   #DFE2CF;
-  --near-black:   #2A2C24;
-  --muted-blood:  #140D4F;
+  --cream:        #FAF6F0;
+  --deep-teal:    #1B4F52;
+  --seafoam:      #5BA8A0;
+  --terracotta:   #D4705A;
+  --blush-sand:   #E8DDD4;
+  --near-black:   #1A1A18;
+  --muted-blood:  #8B2E2E;
 }
 
 /* ─── Reset & base ──────────────────────────────────────── */
@@ -59,7 +59,7 @@ a {
 }
 
 .slide-1  { background: var(--near-black);  color: var(--cream); }
-.slide-2  { background: linear-gradient(160deg, var(--near-black) 0%, #140D4F 100%); color: var(--cream); }
+.slide-2  { background: var(--near-black); color: var(--cream); }
 .slide-3  { background: var(--cream);        color: var(--deep-teal); }
 .slide-4  { background: var(--blush-sand);   color: var(--deep-teal); }
 .slide-5  { background: var(--cream);        color: var(--deep-teal); }
@@ -357,6 +357,57 @@ h2 {
   line-height: 1;
 }
 
+/* ─── Brand grid (slide 7) ───────────────────────────────── */
+.brand-grid {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  align-items: flex-end;
+  margin: 1.5rem 0;
+  flex-wrap: wrap;
+}
+
+.brand-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: default;
+}
+
+.brand-item img {
+  height: 120px;
+  width: auto;
+  object-fit: contain;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.brand-item:hover img {
+  transform: scale(1.06);
+  filter: brightness(1.08);
+}
+
+.brand-name {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--near-black);
+  color: var(--cream);
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.brand-item:hover .brand-name {
+  opacity: 1;
+}
+
 .site-footer {
   font-size: 0.9rem;
   opacity: 0.55;
@@ -628,6 +679,14 @@ h2 {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
   pointer-events: auto;
+}
+
+.cert-logo {
+  display: block;
+  max-width: 100%;
+  max-height: 80px;
+  object-fit: contain;
+  margin-bottom: 0.5rem;
 }
 
 .leg-popup-title {
