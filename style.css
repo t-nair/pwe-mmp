@@ -3,13 +3,13 @@
 
 /* ─── Design tokens ─────────────────────────────────────── */
 :root {
-  --cream:        #FAF6F0;
-  --deep-teal:    #1B4F52;
-  --seafoam:      #5BA8A0;
-  --terracotta:   #D4705A;
-  --blush-sand:   #E8DDD4;
-  --near-black:   #1A1A18;
-  --muted-blood:  #8B2E2E;
+  --cream:        #DFE2CF;
+  --deep-teal:    #4A5043;
+  --seafoam:      #9BA694;
+  --terracotta:   #E2856E;
+  --blush-sand:   #DFE2CF;
+  --near-black:   #2A2C24;
+  --muted-blood:  #140D4F;
 }
 
 /* ─── Reset & base ──────────────────────────────────────── */
@@ -59,7 +59,7 @@ a {
 }
 
 .slide-1  { background: var(--near-black);  color: var(--cream); }
-.slide-2  { background: linear-gradient(160deg, var(--near-black) 0%, #112e30 100%); color: var(--cream); }
+.slide-2  { background: linear-gradient(160deg, var(--near-black) 0%, #140D4F 100%); color: var(--cream); }
 .slide-3  { background: var(--cream);        color: var(--deep-teal); }
 .slide-4  { background: var(--blush-sand);   color: var(--deep-teal); }
 .slide-5  { background: var(--cream);        color: var(--deep-teal); }
@@ -310,6 +310,15 @@ h2 {
   line-height: 1.5;
   opacity: 0.88;
   margin: 0;
+}
+
+/* ─── CTA verify subheading (slide 7) ───────────────────── */
+.cta-verify-heading {
+  font-size: 1rem;
+  font-weight: 400;
+  opacity: 0.7;
+  margin-top: 2rem;
+  margin-bottom: 0;
 }
 
 /* ─── CTA list (slide 7) ─────────────────────────────────── */
@@ -614,9 +623,11 @@ h2 {
   border-top-color: var(--near-black);
 }
 
-.leg-btn-wrap:hover .leg-popup {
+.leg-btn-wrap:hover .leg-popup,
+.leg-btn-wrap.locked .leg-popup {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
 }
 
 .leg-popup-title {
@@ -630,6 +641,21 @@ h2 {
   font-size: 0.82rem;
   line-height: 1.55;
   opacity: 0.88;
+}
+
+.leg-popup-cite {
+  display: inline-block;
+  margin-top: 0.5rem;
+  font-size: 0.68rem;
+  opacity: 0.5;
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: opacity 0.2s;
+}
+
+.leg-popup-cite:hover {
+  opacity: 0.9;
 }
 
 /* ─── Health effects slide ──────────────────────────────── */
@@ -779,7 +805,7 @@ h2 {
   display: block;
   width: 100%;
   height: 100%;
-  filter: drop-shadow(0 0 36px rgba(91, 168, 160, 0.45));
+  filter: drop-shadow(0 0 36px rgba(20, 13, 79, 0.55));
 }
 
 #globe-pins {

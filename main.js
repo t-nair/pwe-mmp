@@ -1,45 +1,62 @@
 // main.js — Scrollytelling site
 // Vanilla JS + GSAP, no framework
 
+// ─── Legislation button click-to-lock ────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.leg-btn-wrap').forEach(wrap => {
+    wrap.addEventListener('click', e => {
+      if (e.target.closest('.leg-popup-cite')) return;
+      const isOpen = wrap.classList.contains('locked');
+      document.querySelectorAll('.leg-btn-wrap.locked').forEach(w => w.classList.remove('locked'));
+      if (!isOpen) wrap.classList.add('locked');
+      e.stopPropagation();
+    });
+  });
+  document.addEventListener('click', e => {
+    if (e.target.closest('.leg-popup-cite')) return;
+    document.querySelectorAll('.leg-btn-wrap.locked').forEach(w => w.classList.remove('locked'));
+  });
+});
+
 // ─── Use case card data ──────────────────────────────────────
 const USE_CASES = [
   {
     title: 'Medical delivery',
     desc: 'Drones deliver insulin, blood, and vaccines to remote communities. Zipline operates in Rwanda and Ghana, cutting delivery time from hours to minutes.',
     icon: `<svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="18" y="6" width="8" height="16" rx="3" fill="#FAF6F0"/>
-      <rect x="12" y="12" width="20" height="8" rx="3" fill="#FAF6F0" opacity="0.6"/>
-      <path d="M10 28c3.3-4 9.7-6 12-6s8.7 2 12 6" stroke="#FAF6F0" stroke-width="2" stroke-linecap="round"/>
-      <circle cx="22" cy="36" r="3" fill="#FAF6F0"/>
+      <rect x="18" y="6" width="8" height="16" rx="3" fill="#DFE2CF"/>
+      <rect x="12" y="12" width="20" height="8" rx="3" fill="#DFE2CF" opacity="0.6"/>
+      <path d="M10 28c3.3-4 9.7-6 12-6s8.7 2 12 6" stroke="#DFE2CF" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="22" cy="36" r="3" fill="#DFE2CF"/>
     </svg>`
   },
   {
     title: 'Pipeline monitoring',
     desc: 'Autonomous underwater vehicles inspect thousands of miles of infrastructure. Earlier deployment could have flagged the Nord Stream anomalies before the 2022 sabotage.',
     icon: `<svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M4 22h36" stroke="#FAF6F0" stroke-width="3.5" stroke-linecap="round"/>
-      <path d="M4 18h36" stroke="#FAF6F0" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/>
-      <path d="M4 26h36" stroke="#FAF6F0" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/>
-      <circle cx="22" cy="22" r="5" fill="#FAF6F0" opacity="0.9"/>
-      <circle cx="22" cy="22" r="2" fill="#1B4F52"/>
+      <path d="M4 22h36" stroke="#DFE2CF" stroke-width="3.5" stroke-linecap="round"/>
+      <path d="M4 18h36" stroke="#DFE2CF" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/>
+      <path d="M4 26h36" stroke="#DFE2CF" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/>
+      <circle cx="22" cy="22" r="5" fill="#DFE2CF" opacity="0.9"/>
+      <circle cx="22" cy="22" r="2" fill="#4A5043"/>
     </svg>`
   },
   {
     title: 'Disaster response',
     desc: 'After earthquakes and floods, drones map damage and locate survivors in hours — reaching terrain no human team can safely access.',
     icon: `<svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M22 6L38 38H6L22 6Z" stroke="#FAF6F0" stroke-width="2.5" stroke-linejoin="round"/>
-      <path d="M22 18v10" stroke="#FAF6F0" stroke-width="2.5" stroke-linecap="round"/>
-      <circle cx="22" cy="32" r="1.5" fill="#FAF6F0"/>
+      <path d="M22 6L38 38H6L22 6Z" stroke="#DFE2CF" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M22 18v10" stroke="#DFE2CF" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="22" cy="32" r="1.5" fill="#DFE2CF"/>
     </svg>`
   },
   {
     title: 'Environmental sensing',
     desc: 'LiDAR-equipped drones map coral reef die-off, track deforestation rates, and monitor air quality — data that changes environmental policy.',
     icon: `<svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <ellipse cx="22" cy="22" rx="17" ry="9" stroke="#FAF6F0" stroke-width="2.5"/>
-      <path d="M5 22h34" stroke="#FAF6F0" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
-      <path d="M12 14.5c2.5 3.5 5.5 7.5 10 7.5s7.5-4 10-7.5" stroke="#FAF6F0" stroke-width="1.5" stroke-linecap="round"/>
+      <ellipse cx="22" cy="22" rx="17" ry="9" stroke="#DFE2CF" stroke-width="2.5"/>
+      <path d="M5 22h34" stroke="#DFE2CF" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+      <path d="M12 14.5c2.5 3.5 5.5 7.5 10 7.5s7.5-4 10-7.5" stroke="#DFE2CF" stroke-width="1.5" stroke-linecap="round"/>
     </svg>`
   }
 ];
@@ -137,31 +154,31 @@ const GLOBE_PLATES = [
     lat: 36, lon: 138,
     region: 'Japan', food: 'Bento',
     emoji: '🍱', color: '#c2614f',
-    thesis: '[Placeholder]'
+    thesis: 'A meal is a way to slow down during or after a hectic day, to savor flavors and company. The Japanese bento box embodies this philosophy by turning a simple meal into a mindful experience.'
   },
   {
     lat: 20, lon: 78,
     region: 'India', food: 'Thali',
-    emoji: '🫓', color: '#c27a2e',
-    thesis: '[Placeholder]'
+    emoji: '🍽️', color: '#c27a2e',
+    thesis: 'A meal is a way to connect with your culture and heritage. The Indian thali, with its variety of dishes served together, reflects the diversity and richness of Indian cuisine and culture.'
   },
   {
     lat: 23, lon: -100,
     region: 'Mexico', food: 'Mole & Tortilla',
     emoji: '🌮', color: '#5a9e62',
-    thesis: '[Placeholder]'
+    thesis: 'A meal is a way to preserve history. The Mexican mole sauce, with its complex blend of indigenous and Spanish ingredients, tells the story of centuries of cultural fusion and resilience.'
   },
   {
     lat: 9, lon: 40,
     region: 'Ethiopia', food: 'Injera & Wat',
     emoji: '🫓', color: '#8b5e3c',
-    thesis: '[Placeholder]'
+    thesis: 'A meal is a way to bring people together. The Ethiopian injera and wat, traditionally eaten communally, foster a sense of unity and shared experience among diners.'
   },
   {
     lat: 42, lon: 13,
     region: 'Italy', food: 'Pasta al Ragù',
     emoji: '🍝', color: '#b84a4a',
-    thesis: '[Placeholder]'
+    thesis: 'A meal is a way to celebrate life. The Italian pasta al ragù, with its rich tomato-based sauce and tender meat, represents joy and warmth.'
   }
 ];
 
@@ -364,17 +381,17 @@ function buildDroneDiagram() {
 
   // Arms
   [[200,155,108,80],[200,155,292,80],[200,155,108,228],[200,155,292,228]].forEach(([x1,y1,x2,y2]) => {
-    svg.appendChild(mk('line', { x1, y1, x2, y2, stroke: '#1B4F52', 'stroke-width': 6, 'stroke-linecap': 'round' }));
+    svg.appendChild(mk('line', { x1, y1, x2, y2, stroke: '#4A5043', 'stroke-width': 6, 'stroke-linecap': 'round' }));
   });
 
   // Body
-  svg.appendChild(mk('rect', { x: 167, y: 122, width: 66, height: 66, rx: 8, fill: '#1B4F52' }));
+  svg.appendChild(mk('rect', { x: 167, y: 122, width: 66, height: 66, rx: 8, fill: '#4A5043' }));
 
   // Rotors
   [[108,80],[292,80],[108,228],[292,228]].forEach(([cx,cy]) => {
-    svg.appendChild(mk('circle', { cx, cy, r: 30, fill: 'none', stroke: '#5BA8A0', 'stroke-width': 2.5 }));
-    svg.appendChild(mk('line',   { x1: cx-22, y1: cy, x2: cx+22, y2: cy, stroke: '#5BA8A0', 'stroke-width': 4.5, 'stroke-linecap': 'round' }));
-    svg.appendChild(mk('line',   { x1: cx, y1: cy-22, x2: cx, y2: cy+22, stroke: '#5BA8A0', 'stroke-width': 4.5, 'stroke-linecap': 'round' }));
+    svg.appendChild(mk('circle', { cx, cy, r: 30, fill: 'none', stroke: '#9BA694', 'stroke-width': 2.5 }));
+    svg.appendChild(mk('line',   { x1: cx-22, y1: cy, x2: cx+22, y2: cy, stroke: '#9BA694', 'stroke-width': 4.5, 'stroke-linecap': 'round' }));
+    svg.appendChild(mk('line',   { x1: cx, y1: cy-22, x2: cx, y2: cy+22, stroke: '#9BA694', 'stroke-width': 4.5, 'stroke-linecap': 'round' }));
   });
 
   const tooltip  = document.getElementById('drone-tooltip');
@@ -385,19 +402,19 @@ function buildDroneDiagram() {
   DRONE_COMPONENTS.forEach(({ id, cx, cy, label, military, civilian, lx, ly, anchor }) => {
     svg.appendChild(mk('line', {
       x1: lx, y1: ly - 4, x2: cx, y2: cy,
-      stroke: '#D4705A', 'stroke-width': 1, 'stroke-dasharray': '3 3', opacity: 0.6
+      stroke: '#E2856E', 'stroke-width': 1, 'stroke-dasharray': '3 3', opacity: 0.6
     }));
 
     const text = mk('text', {
       x: lx, y: ly,
       'text-anchor': anchor,
       'font-size': 11, 'font-family': 'Inter, sans-serif',
-      fill: '#1B4F52', 'font-weight': '600'
+      fill: '#4A5043', 'font-weight': '600'
     });
     text.textContent = label;
     svg.appendChild(text);
 
-    const dot = mk('circle', { id, cx, cy, r: 6, fill: '#D4705A', class: 'component-dot' });
+    const dot = mk('circle', { id, cx, cy, r: 6, fill: '#E2856E', class: 'component-dot' });
     dot.addEventListener('mouseenter', (e) => {
       ttLabel.textContent = label;
       ttMil.textContent   = military;
@@ -451,20 +468,20 @@ function buildPipelineFlow() {
   marker.setAttribute('refX',         '9');
   marker.setAttribute('refY',         '3.5');
   marker.setAttribute('orient',       'auto');
-  marker.appendChild(mk('polygon', { points: '0 0, 10 3.5, 0 7', fill: '#D4705A' }));
+  marker.appendChild(mk('polygon', { points: '0 0, 10 3.5, 0 7', fill: '#E2856E' }));
   defs.appendChild(marker);
   svg.appendChild(defs);
 
   const nodes = [
-    { label: 'Hopkins\nEE / MechE / CS', x: 100,  fill: '#1B4F52' },
-    { label: 'JHU APL',                  x: 320,  fill: '#8B2E2E' },
-    { label: 'Lockheed · Raytheon\nNorthrop Grumman', x: 540, fill: '#1A1A18' },
+    { label: 'Hopkins\nEE / MechE / CS', x: 100,  fill: '#4A5043' },
+    { label: 'JHU APL',                  x: 320,  fill: '#140D4F' },
+    { label: 'Lockheed · Raytheon\nNorthrop Grumman', x: 540, fill: '#2A2C24' },
   ];
 
   [[nodes[0].x + 70, nodes[1].x - 70], [nodes[1].x + 70, nodes[2].x - 70]].forEach(([x1, x2]) => {
     svg.appendChild(mk('path', {
       d: `M ${x1} 70 C ${x1+30} 70, ${x2-30} 70, ${x2} 70`,
-      stroke: '#D4705A', 'stroke-width': 2.5, fill: 'none',
+      stroke: '#E2856E', 'stroke-width': 2.5, fill: 'none',
       'marker-end': 'url(#pipe-arrow)',
       'stroke-dasharray': 180, 'stroke-dashoffset': 180,
       class: 'pipeline-arrow'
@@ -480,7 +497,7 @@ function buildPipelineFlow() {
       text.setAttribute('text-anchor', 'middle');
       text.setAttribute('font-size',   '13');
       text.setAttribute('font-family', 'Inter, sans-serif');
-      text.setAttribute('fill',        '#FAF6F0');
+      text.setAttribute('fill',        '#DFE2CF');
       text.setAttribute('font-weight', '600');
       text.textContent = line;
       svg.appendChild(text);
@@ -549,10 +566,10 @@ function drawGlobeFrame(rot) {
 
   // Ocean sphere gradient
   const oceanGrad = ctx.createRadialGradient(cx - R*0.3, cy - R*0.35, 0, cx, cy, R);
-  oceanGrad.addColorStop(0,   '#7abfb8');
-  oceanGrad.addColorStop(0.4, '#3a8880');
-  oceanGrad.addColorStop(0.8, '#1B4F52');
-  oceanGrad.addColorStop(1,   '#0b2628');
+  oceanGrad.addColorStop(0,   '#3a3870');
+  oceanGrad.addColorStop(0.4, '#1e1a60');
+  oceanGrad.addColorStop(0.8, '#140D4F');
+  oceanGrad.addColorStop(1,   '#080630');
   ctx.beginPath();
   ctx.arc(cx, cy, R, 0, Math.PI*2);
   ctx.fillStyle = oceanGrad;
@@ -583,8 +600,8 @@ function drawGlobeFrame(rot) {
       ctx.moveTo(seg[0].x, seg[0].y);
       for (let i = 1; i < seg.length; i++) ctx.lineTo(seg[i].x, seg[i].y);
       ctx.closePath();
-      ctx.fillStyle   = 'rgba(52, 105, 62, 0.78)';
-      ctx.strokeStyle = 'rgba(80, 150, 90, 0.55)';
+      ctx.fillStyle   = 'rgba(74, 80, 67, 0.85)';
+      ctx.strokeStyle = 'rgba(155, 166, 148, 0.55)';
       ctx.lineWidth   = 0.7;
       ctx.fill();
       ctx.stroke();
