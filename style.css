@@ -31,6 +31,7 @@ body {
   line-height: 1.7;
   background: var(--cream);
   color: var(--deep-teal);
+  zoom: 0.75;
 }
 
 a {
